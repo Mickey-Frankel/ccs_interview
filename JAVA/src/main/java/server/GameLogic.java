@@ -3,11 +3,23 @@ package server;
 import java.util.Random;
 
 public class GameLogic {
-    private static final int SECRET_NUMBER = 42;
-    private final Random random = new Random();
+//    private static final int SECRET_NUMBER = 42;
+    private static int[] primeArr = {2,3,5,7,11,13};
+    private final Random random;
 
+    public GameLogic(Random random){
+        this.random = random;
+    }
+    public GameLogic(){
+        this(new Random());
+    }
     public int validateGuess(String input) throws IllegalArgumentException {
+        // I've extended the validations by checking the input isn't null or merely spaces
         try {
+            if (input == null || input.trim().isEmpty()) {
+                throw new NumberFormatException();
+            }
+
             int guess = Integer.parseInt(input);
             if (guess < 1 || guess > 100) {
                 throw new IllegalArgumentException("Number out of range, please guess between 1 and 100.");
@@ -18,11 +30,35 @@ public class GameLogic {
         }
     }
 
+    private int reverse(int num){
+        int reversed = 0;
+        while(num > 0){
+            reversed = reversed * 10 + num % 10;
+            num = num/10;
+        }
+        return reversed;
+    }
+    private int getSecretNumber(){
+        int secret = random.nextInt(1,101);
+        if(secret % 2 == 0) {
+            secret = reverse(secret);
+        }
+        else{
+            secret += primeArr[random.nextInt(primeArr.length)];
+        }
+        if(secret >= 100) {
+            return secret / 2;
+        }
+        else if (secret <50) {
+            return secret * 2;
+        }
+        return secret;
+    }
     public boolean checkGuessCorrectness(int guess) {
-        return guess == SECRET_NUMBER;
+        return guess == getSecretNumber();
     }
 
-    public void generatePrefix(int guess) {
+    public String generatePrefix(int guess) {
         int formatChoice = random.nextInt(3);
         String prefix;
 
@@ -53,7 +89,7 @@ public class GameLogic {
             prefix += " Your guess is in the high-risk zone!";
         }
 
-        System.out.println(prefix);  // Prints the prefix instead of returning it
+        return prefix;
     }
 }
 
